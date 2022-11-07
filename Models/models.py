@@ -26,9 +26,17 @@ def model_log_prices(t,prev,prev_x,prev_y_x):
     X = lambda x,x_y: coefs_mean_rever[0]*x + coefs_mean_rever[1] * x_y
     return log(prev) + f(t) + X(prev_x,prev_y_x)
 
+def mean_rever(prev_x,prev_y_x):
+    return coefs_mean_rever[0] * prev_x + coefs_mean_rever[1] * prev_y_x
+
 def residual(prev_price, curr_price,t):
     f = lambda x: coefs_log_prices[0] + coefs_log_prices[1] * sin((coefs_log_prices[2]+x)*2*pi/12)
     return log(curr_price) - log(prev_price) - f(t)
+
+def residual_with_X(prev_price,curr_price,X,t):
+    f = lambda x: coefs_log_prices[0] + coefs_log_prices[1] * sin((coefs_log_prices[2]+x)*2*pi/12)
+    return log(curr_price) - log(prev_price) - f(t) - X
+
 
 storage_sd = 51.67998438309842
 prices_sd  = 0.0855231078219911
