@@ -8,18 +8,7 @@ def model_evaporation(t):
 
 coefs_inflow = loadtxt('Models/coeficients/inflow_coef.csv')
 
-# este modelo está mal
-# def model_inflow(t,prev):
-#     return coefs_inflow[0]*prev+ coefs_inflow[1]*(1-coefs_inflow[0]) + (coefs_inflow[2] * (t% 12 == 1) + coefs_inflow[3] * (t% 12 == 2) + coefs_inflow[4] * (t% 12 == 3) + coefs_inflow[5] * (t% 12 == 4) + coefs_inflow[6] * (t% 12 == 5) + coefs_inflow[7] * (t% 12 == 6) + coefs_inflow[8] * (t% 12 == 7) + coefs_inflow[9] * (t% 12 == 8) + coefs_inflow[10] * (t% 12 == 9) + coefs_inflow[11] * (t% 12 == 10)+ coefs_inflow[12] * (t% 12 == 11))*(1- coefs_inflow[0])
 def model_inflow(prev, t):
-    # return coefs_inflow[0]*prev+ coefs_inflow[1]*(1-coefs_inflow[0]) + (coefs_inflow[2] * (t% 12 == 1) + coefs_inflow[3] * (t% 12 == 2) + coefs_inflow[4] * (t% 12 == 3) \
-    #                                                                   + coefs_inflow[5] * (t% 12 == 4) + coefs_inflow[6] * (t% 12 == 5) + coefs_inflow[7] * (t% 12 == 6) \
-    #                                                                  + coefs_inflow[8] * (t% 12 == 7) + coefs_inflow[9] * (t% 12 == 8) + coefs_inflow[10] * (t% 12 == 9) \
-    #                                            + coefs_inflow[11] * (t% 12 == 10)+ coefs_inflow[12] * (t% 12 == 11) + coefs_inflow[13] * (t% 12 == 0)) - coefs_inflow[0] \
-    #                                                            * (coefs_inflow[2] * (t-1% 12 == 1) + coefs_inflow[3] * (t-1% 12 == 2) + coefs_inflow[4] * (t-1% 12 == 3) \
-    #                                                             + coefs_inflow[5] * (t-1% 12 == 4) + coefs_inflow[6] * (t-1% 12 == 5) + coefs_inflow[7] * (t-1% 12 == 6) \
-    #                                                            + coefs_inflow[8] * (t-1% 12 == 7) + coefs_inflow[9] * (t-1% 12 == 8) + coefs_inflow[10] * (t-1% 12 == 9) \
-    #                                                       + coefs_inflow[11] * (t-1% 12 == 10) + coefs_inflow[12] * (t-1% 12 == 11) + coefs_inflow[13] * (t% 12 == 0))
     return coefs_inflow[0] + coefs_inflow[1]* prev + coefs_inflow[2] * (sin((t+coefs_inflow[3])*2*pi/12))
 
 def model_storage(model_inflow, prev_inflow , model_evaporation, t, prev_storage, outflow):
@@ -40,24 +29,22 @@ coefs_prices_corr_resid = loadtxt('Models/coeficients/correlated_residuals.csv' 
 coefs_prices_cte   = loadtxt('Models/coeficients/prices_cte.csv')
 coefs_prices_rever = loadtxt('Models/coeficients/prices_rever.csv')
 
-# def model_log_prices_nonmr(prev):
-#     return prev + coefs_log_prices_nonmr[0]
-#
-# def model_log_prices_mr(prev):
-#     #return coefs_log_prices_mr[0] + (1 + coefs_log_prices_mr[1]) * prev
-#     return coefs_log_prices_mr[0] + (1 - 0.08) * prev
-#
-# def model_log_prices(t,prev,prev_x,prev_y_x):
-#     f = lambda x: coefs_log_prices[0] + coefs_log_prices[1] * sin((coefs_log_prices[2]+x)*2*pi/12)
-#     #X = lambda x,x_y: coefs_mean_rever[0]*x + coefs_mean_rever[1] * x_y
-#     return log(prev) + f(t) #+ X(prev_x,prev_y_x)
+coefs_prices_cte_2   = loadtxt('Models/coeficients/prices_2_cte.csv')
+coefs_prices_rever_2 = loadtxt('Models/coeficients/prices_2_rever.csv')
+
 
 def model_prices_cte(t, prev):
     return prev + coefs_prices_cte[0] +  coefs_prices_cte[1] * (sin((t+coefs_prices_cte[2])*2*pi/6))
 
 def model_prices_rever(t,prev):
     return prev + coefs_prices_rever[0] +  coefs_prices_rever[1] * prev + coefs_prices_rever[2] * (sin((t+coefs_prices_rever[3])*2*pi/6))
+# def model_2_cte(t,prev):
+#     return prices[t-1] + coefs_prices_cte_2[0] +  coefs_prices_cte_2[1] * (np.sin((t+coefs_prices_cte_2[2])*2*np.pi/6)) + coefs_prices_cte_2[3] * (np.sin((t+coefs_prices_cte_2[4])*2*np.pi/12))
+#
+# def model_2_rever(t,prev):
+#     return prices[t-1] + coefs_prices_rever_2[0] +  coefs_prices_rever_2[1] * prev + coefs_prices_rever_2[2] * (np.sin((t+coefs_prices_rever_2[3])*2*np.pi/6)) + coefs_prices_rever_2[4] * (np.sin((t+coefs_prices_rever_2[5])*2*np.pi/12))
 
+# noise
 def mean_rever(prev_x,prev_y_x):
     return coefs_mean_rever[0] * prev_x + coefs_mean_rever[1] * prev_y_x
 
@@ -68,7 +55,7 @@ def residual(prev_price, curr_price,t):
 def residual_with_X(prev_price,curr_price,X,t):
     f = lambda x: coefs_log_prices[0] + coefs_log_prices[1] * sin((coefs_log_prices[2]+x)*2*pi/12)
     return log(curr_price) - log(prev_price) - f(t) - X
-
+# end noise
 
 storage_sd = 103.79512935238394
 prices_sd  = 0.027060425667826772
@@ -78,17 +65,13 @@ prices_sd_mr    = 0.029386989679649242 # This is the second model of the fishery
 prices_cte_sd   = 0.23525918886981498
 prices_rever_sd = 0.23183635480506956
 
+prices_2_cte_sd   = 0.20533845309708318
+prices_2_rever_sd = 0.20295022531839801
+
 def next_storage(model_inflow, prev_inflow , model_evaporation, t, prev_storage, outflow, model_storage, shock_n):
     return model_storage(model_inflow, prev_inflow , model_evaporation, t, prev_storage, outflow) + storage_sd * shock_n
 
-# def next_price_nonmr(t,prev, shock_m):
-#     expected_log_price = model_log_prices_nonmr(log(prev))
-#     return exp(expected_log_price + prices_sd_nonmr * shock_m)
-#
-# def next_price_mr(t,prev, shock_m):
-#     expected_log_price = model_log_prices_mr(log(prev))
-#     return exp(expected_log_price + prices_sd_mr * shock_m)
-#
+
 def next_price_cte(t, prev, shock_m):
     return model_prices_cte(t, prev)  + prices_cte_sd * shock_m
 
